@@ -3,14 +3,22 @@ using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
-var activeClients = await db.Clients
-    .AsNoTracking()
-    .Where(c => c.Status == "active")
-    .OrderBy(c => c.LastName)
-    .ToListAsync();
+Console.Write("Фрагмент фамилии: ");
+string term = Console.ReadLine()?.Trim() ?? string.Empty;
 
-Console.WriteLine("=== Активные клиенты ===");
-foreach (var client in activeClients)
+if (term.Length == 0)
 {
-    Console.WriteLine($"{client.ClientId}: {client.FirstName} {client.LastName} (Статус: {client.Status})");
+    Console.WriteLine("Строка поиска не задана.");
+}
+else
+{
+    var found = await db.Clients
+        .AsNoTracking()
+        .Where(c => c.LastName.Contains(term))
+        .OrderBy(c => c.LastName)
+        .ToListAsync();
+
+    Console.WriteLine("=== Результаты поиска ===");
+    foreach (var c in found)
+        Console.WriteLine($"{c.ClientId}: {c.FirstName} {c.LastName}");
 }
