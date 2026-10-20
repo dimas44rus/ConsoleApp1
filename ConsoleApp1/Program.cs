@@ -3,14 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
-int total = await db.Clients.CountAsync();
+int page = 1;     
+int pageSize = 5;  
 
-bool hasInactive = await db.Clients.AnyAsync(c => c.Status == "inactive");
+var pageOfClients = await db.Clients
+    .AsNoTracking()
+    .OrderBy(c => c.ClientId)
+    .Skip((page - 1) * pageSize) 
+    .Take(pageSize)               
+    .ToListAsync();
 
-int activeCount = await db.Clients.CountAsync(c => c.Status == "active");
-
-Console.WriteLine($"Всего клиентов: {total}");
-Console.WriteLine($"Активных клиентов: {activeCount}");
-Console.WriteLine(hasInactive
-    ? "Есть неактивные клиенты."
-    : "Неактивные клиенты отсутствуют.");
+Console.WriteLine($"=== Страница {page} (размер порции: {pageSize}) ===");
+foreach (var client in pageOfClients)
+{
+    Console.WriteLine($"{client.ClientId}: {client.FirstName} {client.LastName}");
+}
