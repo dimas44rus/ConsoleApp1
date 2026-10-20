@@ -1,24 +1,18 @@
 ﻿using FitnessEf;
-using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
-Console.Write("Фрагмент фамилии: ");
-string term = Console.ReadLine()?.Trim() ?? string.Empty;
-
-if (term.Length == 0)
+Console.Write("ID клиента: ");
+if (int.TryParse(Console.ReadLine(), out int id) && id > 0)
 {
-    Console.WriteLine("Строка поиска не задана.");
+    var client = await db.Clients.FindAsync(id);
+
+    if (client is null)
+        Console.WriteLine("Клиент не найден.");
+    else
+        Console.WriteLine($"{client.ClientId}: {client.FirstName} {client.LastName}");
 }
 else
 {
-    var found = await db.Clients
-        .AsNoTracking()
-        .Where(c => c.LastName.Contains(term))
-        .OrderBy(c => c.LastName)
-        .ToListAsync();
-
-    Console.WriteLine("=== Результаты поиска ===");
-    foreach (var c in found)
-        Console.WriteLine($"{c.ClientId}: {c.FirstName} {c.LastName}");
+    Console.WriteLine("ID должен быть положительным целым числом.");
 }
