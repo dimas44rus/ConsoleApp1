@@ -3,19 +3,14 @@ using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
-var clients = await db.Clients
+var activeClients = await db.Clients
     .AsNoTracking()
+    .Where(c => c.Status == "active")
     .OrderBy(c => c.LastName)
-    .ThenBy(c => c.FirstName)
-    .Select(c => new
-    {
-        c.ClientId,
-        FullName = c.FirstName + " " + c.LastName,
-        c.Phone
-    })
     .ToListAsync();
 
-foreach (var c in clients)
+Console.WriteLine("=== Активные клиенты ===");
+foreach (var client in activeClients)
 {
-    Console.WriteLine($"{c.ClientId}: {c.FullName}; тел.: {c.Phone ?? "не указан"}");
+    Console.WriteLine($"{client.ClientId}: {client.FirstName} {client.LastName} (Статус: {client.Status})");
 }
