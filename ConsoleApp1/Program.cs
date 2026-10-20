@@ -1,18 +1,16 @@
 ﻿using FitnessEf;
+using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
-Console.Write("ID клиента: ");
-if (int.TryParse(Console.ReadLine(), out int id) && id > 0)
-{
-    var client = await db.Clients.FindAsync(id);
+int total = await db.Clients.CountAsync();
 
-    if (client is null)
-        Console.WriteLine("Клиент не найден.");
-    else
-        Console.WriteLine($"{client.ClientId}: {client.FirstName} {client.LastName}");
-}
-else
-{
-    Console.WriteLine("ID должен быть положительным целым числом.");
-}
+bool hasInactive = await db.Clients.AnyAsync(c => c.Status == "inactive");
+
+int activeCount = await db.Clients.CountAsync(c => c.Status == "active");
+
+Console.WriteLine($"Всего клиентов: {total}");
+Console.WriteLine($"Активных клиентов: {activeCount}");
+Console.WriteLine(hasInactive
+    ? "Есть неактивные клиенты."
+    : "Неактивные клиенты отсутствуют.");
