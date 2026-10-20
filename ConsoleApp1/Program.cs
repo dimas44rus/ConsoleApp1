@@ -1,8 +1,7 @@
-﻿using Npgsql;
+﻿using FitnessEf;
 
-var connectString = "Host=localhost;Port=5432;Database=Fitnes;Username=postgres;Password=123";
-
-using var connection = new NpgsqlConnection(connectString);
-
-connection.Open();
-Console.WriteLine("Подключение к БД успешно!");
+await using var db = new FitnessContext();
+var canConnect = await db.Database.CanConnectAsync();
+Console.WriteLine(canConnect
+    ? "Соединение с PostgreSQL установлено."
+    : "PostgreSQL недоступен.");
