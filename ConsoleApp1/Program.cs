@@ -1,20 +1,21 @@
 ﻿using FitnessEf;
-using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
-int page = 1;     
-int pageSize = 5;  
-
-var pageOfClients = await db.Clients
-    .AsNoTracking()
-    .OrderBy(c => c.ClientId)
-    .Skip((page - 1) * pageSize) 
-    .Take(pageSize)               
-    .ToListAsync();
-
-Console.WriteLine($"=== Страница {page} (размер порции: {pageSize}) ===");
-foreach (var client in pageOfClients)
+var client = new Client
 {
-    Console.WriteLine($"{client.ClientId}: {client.FirstName} {client.LastName}");
-}
+    FirstName = "Дмитрий",
+    LastName = "Соколов",
+    BirthDate = new DateOnly(2000, 5, 15),
+    Phone = "79995554433",
+    Email = "sokolov@example.com",
+    RegistrationDate = DateOnly.FromDateTime(DateTime.Today),
+    Status = "active"
+};
+
+db.Clients.Add(client);
+
+int saved = await db.SaveChangesAsync();
+
+Console.WriteLine($"Сохранено изменений: {saved}");
+Console.WriteLine($"ID нового клиента: {client.ClientId}");
