@@ -2,16 +2,24 @@
 
 await using var db = new FitnessContext();
 
-int id = 1;
-var client = await db.Clients.FindAsync(id);
+Console.WriteLine("Подготовка пакета действий перед сохранением...");
 
-if (client is null)
+db.Clients.Add(new Client
 {
-    Console.WriteLine("Клиент не найден.");
-    return;
+    FirstName = "Анна",
+    LastName = "Смирнова",
+    RegistrationDate = DateOnly.FromDateTime(DateTime.Today),
+    Status = "active"
+});
+
+var existing = await db.Clients.FindAsync(2);
+if (existing is not null)
+{
+    existing.Status = "inactive";
+    Console.WriteLine($"Статус существующего клиента с ID = {existing.ClientId} изменен в памяти на 'inactive'.");
 }
 
-db.Clients.Remove(client);
+Console.WriteLine("Отправка пакета изменений в базу данных...");
+int affectedRows = await db.SaveChangesAsync();
 
-await db.SaveChangesAsync();
-Console.WriteLine("Клиент успешно удалён из базы данных.");
+Console.WriteLine($"Пакет успешно применен! Количество измененных строк в БД: {affectedRows}");
