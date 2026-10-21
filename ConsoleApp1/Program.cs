@@ -1,26 +1,21 @@
 ﻿using FitnessEf;
 using Microsoft.EntityFrameworkCore;
 
-
-
 await using var db = new FitnessContext();
 
-int clientId = 2;
-var clientExists = await db.Clients.AnyAsync(c => c.ClientId == clientId);
+var clients = await db.Clients
+    .AsNoTracking()
+    .Include(c => c.Visits)
+    .OrderBy(c => c.ClientId)
+    .ToListAsync();
 
-if (!clientExists)
+Console.WriteLine("=== Список клиентов и их посещений ===");
+foreach (var client in clients)
 {
-    Console.WriteLine("Клиента с таким ID нет.");
-    return;
+    Console.WriteLine($"{client.FirstName} {client.LastName} (ID: {client.ClientId})");
+
+    foreach (var visit in client.Visits)
+    {
+        Console.WriteLine($"  -> {visit.VisitDate}: {visit.Note}");
+    }
 }
-
-db.Visits.Add(new FitnessEf.Visit
-{
-    ClientId = clientId,
-    VisitDate = DateOnly.FromDateTime(DateTime.Today),
-    Note = "Первичное Задание"
-});
-
-
-await db.SaveChangesAsync();
-Console.WriteLine($"Запись о посещении для клиента с ID = {clientId} успешно сохранена!");
