@@ -1,18 +1,26 @@
 ﻿using FitnessEf;
 using Microsoft.EntityFrameworkCore;
 
+
+
 await using var db = new FitnessContext();
 
-Console.WriteLine("Запрос клиентов без указанного Email...");
+int clientId = 2;
+var clientExists = await db.Clients.AnyAsync(c => c.ClientId == clientId);
 
-var clientsWithoutEmail = await db.Clients
-    .AsNoTracking()
-    .Where(c => c.Email == null)
-    .OrderBy(c => c.ClientId)
-    .ToListAsync();
-
-Console.WriteLine("=== Список клиентов без Email ===");
-foreach (var client in clientsWithoutEmail)
+if (!clientExists)
 {
-    Console.WriteLine($"{client.ClientId}: {client.FirstName} {client.LastName} (Телефон: {client.Phone ?? "не указан"})");
+    Console.WriteLine("Клиента с таким ID нет.");
+    return;
 }
+
+db.Visits.Add(new FitnessEf.Visit
+{
+    ClientId = clientId,
+    VisitDate = DateOnly.FromDateTime(DateTime.Today),
+    Note = "Первичное Задание"
+});
+
+
+await db.SaveChangesAsync();
+Console.WriteLine($"Запись о посещении для клиента с ID = {clientId} успешно сохранена!");

@@ -5,6 +5,8 @@ namespace FitnessEf;
 public sealed class FitnessContext : DbContext
 {
     public DbSet<Client> Clients => Set<Client>();
+    public DbSet<Visit> Visits => Set<Visit>();
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
