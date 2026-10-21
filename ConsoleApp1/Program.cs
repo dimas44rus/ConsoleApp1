@@ -1,28 +1,24 @@
 ﻿using FitnessEf;
+using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
-Console.Write("Имя: ");
-string firstName = Console.ReadLine()?.Trim() ?? string.Empty;
-
-Console.Write("Фамилия: ");
-string lastName = Console.ReadLine()?.Trim() ?? string.Empty;
-
-if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-{
-    Console.WriteLine("Ошибка: Имя и фамилия обязательны.");
-    return; 
-}
-
 var client = new Client
 {
-    FirstName = firstName,
-    LastName = lastName,
+    FirstName = "Тест",
+    LastName = "Ошибки",
     RegistrationDate = DateOnly.FromDateTime(DateTime.Today),
-    Status = "active"
+    Status = "very_long_status_name_that_exceeds_twenty_characters"
 };
 
-db.Clients.Add(client);
-await db.SaveChangesAsync();
-
-Console.WriteLine($"Клиент успешно добавлен! Присвоен ID: {client.ClientId}");
+try
+{
+    db.Clients.Add(client);
+    await db.SaveChangesAsync();
+    Console.WriteLine($"Клиент добавлен. ID: {client.ClientId}");
+}
+catch (DbUpdateException ex)
+{
+    Console.WriteLine("Не удалось сохранить клиента. Проверьте данные и ограничения БД.");
+    Console.WriteLine($"Детали ошибки: {ex.GetBaseException().Message}");
+}
