@@ -1,25 +1,18 @@
 ﻿using FitnessEf;
+using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
-Console.WriteLine("Подготовка пакета действий перед сохранением...");
+Console.WriteLine("Запрос клиентов без указанного Email...");
 
-db.Clients.Add(new Client
-{
-    FirstName = "Анна",
-    LastName = "Смирнова",
-    RegistrationDate = DateOnly.FromDateTime(DateTime.Today),
-    Status = "active"
-});
+var clientsWithoutEmail = await db.Clients
+    .AsNoTracking()
+    .Where(c => c.Email == null)
+    .OrderBy(c => c.ClientId)
+    .ToListAsync();
 
-var existing = await db.Clients.FindAsync(2);
-if (existing is not null)
+Console.WriteLine("=== Список клиентов без Email ===");
+foreach (var client in clientsWithoutEmail)
 {
-    existing.Status = "inactive";
-    Console.WriteLine($"Статус существующего клиента с ID = {existing.ClientId} изменен в памяти на 'inactive'.");
+    Console.WriteLine($"{client.ClientId}: {client.FirstName} {client.LastName} (Телефон: {client.Phone ?? "не указан"})");
 }
-
-Console.WriteLine("Отправка пакета изменений в базу данных...");
-int affectedRows = await db.SaveChangesAsync();
-
-Console.WriteLine($"Пакет успешно применен! Количество измененных строк в БД: {affectedRows}");
