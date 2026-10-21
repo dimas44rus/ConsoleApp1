@@ -21,6 +21,8 @@ public sealed class FitnessContext : DbContext
     {
         modelBuilder.Entity<Visit>(entity =>
         {
+            entity.Property(c => c.Note).HasColumnName("note").HasMaxLength(500);
+
             entity.ToTable("visits");
             entity.HasKey(v => v.VisitId);
 
