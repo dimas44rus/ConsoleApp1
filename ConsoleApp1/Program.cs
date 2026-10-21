@@ -1,10 +1,9 @@
 ﻿using FitnessEf;
-using Microsoft.EntityFrameworkCore;
 
 await using var db = new FitnessContext();
 
 int id = 1;
-var client = await db.Clients.FirstOrDefaultAsync(c => c.ClientId == id);
+var client = await db.Clients.FindAsync(id);
 
 if (client is null)
 {
@@ -12,7 +11,7 @@ if (client is null)
     return;
 }
 
-client.Phone = "79990001122";
+db.Clients.Remove(client);
 
 await db.SaveChangesAsync();
-Console.WriteLine("Телефон успешно изменён в базе данных PostgreSQL.");
+Console.WriteLine("Клиент успешно удалён из базы данных.");
