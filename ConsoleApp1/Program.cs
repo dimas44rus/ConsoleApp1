@@ -2,20 +2,27 @@
 
 await using var db = new FitnessContext();
 
+Console.Write("Имя: ");
+string firstName = Console.ReadLine()?.Trim() ?? string.Empty;
+
+Console.Write("Фамилия: ");
+string lastName = Console.ReadLine()?.Trim() ?? string.Empty;
+
+if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+{
+    Console.WriteLine("Ошибка: Имя и фамилия обязательны.");
+    return; 
+}
+
 var client = new Client
 {
-    FirstName = "Дмитрий",
-    LastName = "Соколов",
-    BirthDate = new DateOnly(2000, 5, 15),
-    Phone = "79995554433",
-    Email = "sokolov@example.com",
+    FirstName = firstName,
+    LastName = lastName,
     RegistrationDate = DateOnly.FromDateTime(DateTime.Today),
     Status = "active"
 };
 
 db.Clients.Add(client);
+await db.SaveChangesAsync();
 
-int saved = await db.SaveChangesAsync();
-
-Console.WriteLine($"Сохранено изменений: {saved}");
-Console.WriteLine($"ID нового клиента: {client.ClientId}");
+Console.WriteLine($"Клиент успешно добавлен! Присвоен ID: {client.ClientId}");
